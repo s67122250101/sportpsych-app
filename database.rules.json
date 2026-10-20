@@ -1,0 +1,71 @@
+{
+  "rules": {
+    "categories": {
+      ".read": true,
+      ".write": false
+    },
+    "faqs": {
+      ".read": true,
+      ".write": false
+    },
+    "users": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['full_name','email','role']) && (newData.child('role').val() === 'athlete' || newData.child('role').val() === 'expert')"
+      }
+    },
+    "questions": {
+      ".read": "auth != null",
+      ".indexOn": [
+        "status",
+        "athlete_id",
+        "session_id"
+      ],
+      "$qid": {
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['athlete_id','category_id','content','status'])",
+        "content": {
+          ".validate": "newData.isString() && newData.val().length >= 5 && newData.val().length <= 1000"
+        },
+        "status": {
+          ".validate": "newData.val() === 'waiting' || newData.val() === 'answered' || newData.val() === 'closed'"
+        }
+      }
+    },
+    "answers": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "chat_messages": {
+      "$sid": {
+        ".read": "auth != null",
+        ".indexOn": [
+          "sent_at"
+        ],
+        "$mid": {
+          ".write": "auth != null"
+        }
+      }
+    },
+    "ratings": {
+      ".read": "auth != null",
+      "$rid": {
+        ".write": "auth != null && !data.exists()",
+        ".validate": "newData.child('score').isNumber() && newData.child('score').val() >= 1 && newData.child('score').val() <= 5"
+      }
+    },
+    "notifications": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null"
+      }
+    },
+    "assessment_results": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}
